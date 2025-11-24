@@ -2,13 +2,9 @@
 
 import { useEffect, useState } from 'react';
 
-/**
- * Notification Component
- * Toast notification for user feedback
- */
 export default function Notification({ 
   message, 
-  type = 'success', // 'success', 'error', 'info'
+  type = 'success', 
   duration = 3000,
   onClose 
 }) {
@@ -18,7 +14,7 @@ export default function Notification({
     if (duration > 0) {
       const timer = setTimeout(() => {
         setIsVisible(false);
-        setTimeout(() => onClose?.(), 300); // Wait for fade out animation
+        setTimeout(() => onClose?.(), 300); 
       }, duration);
 
       return () => clearTimeout(timer);
@@ -71,10 +67,6 @@ export default function Notification({
   );
 }
 
-/**
- * NotificationContainer Component
- * Container for stacking multiple notifications
- */
 export function NotificationContainer({ notifications, onRemove }) {
   return (
     <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">

@@ -1,9 +1,5 @@
 'use client';
 
-/**
- * Loading Spinner Component
- * Reusable loading indicator following DRY principle
- */
 export function LoadingSpinner({ size = 'md', className = '' }) {
   const sizeClasses = {
     sm: 'w-4 h-4',
@@ -20,10 +16,6 @@ export function LoadingSpinner({ size = 'md', className = '' }) {
   );
 }
 
-/**
- * Skeleton Loader Component
- * For better perceived performance
- */
 export function Skeleton({ className = '', variant = 'default' }) {
   const variants = {
     default: 'bg-card-border',
@@ -39,9 +31,6 @@ export function Skeleton({ className = '', variant = 'default' }) {
   );
 }
 
-/**
- * Card Skeleton Loader
- */
 export function CardSkeleton() {
   return (
     <div className="bg-card p-5 rounded-xl border border-card-border flex-1 min-w-[200px]">
@@ -57,9 +46,6 @@ export function CardSkeleton() {
   );
 }
 
-/**
- * Table Skeleton Loader
- */
 export function TableSkeleton({ rows = 3 }) {
   return (
     <div className="space-y-3">

@@ -9,9 +9,6 @@ import StatsCard from './components/StatsCard';
 import TaskList from './components/TaskList';
 import { useGetStatsQuery, useGetSummaryQuery } from './lib/api/statsApi';
 
-
-
-
 export default function Home() {
   const { data: stats, isLoading: statsLoading, error: statsError, refetch: refetchStats } = useGetStatsQuery();
   const { data: summary, isLoading: summaryLoading, error: summaryError } = useGetSummaryQuery();

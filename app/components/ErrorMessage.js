@@ -1,9 +1,5 @@
 'use client';
 
-/**
- * Error Display Component
- * Reusable error message display following DRY principle
- */
 export function ErrorMessage({ error, onRetry, className = '' }) {
   if (!error) return null;
 
@@ -32,9 +28,6 @@ export function ErrorMessage({ error, onRetry, className = '' }) {
   );
 }
 
-/**
- * Empty State Component
- */
 export function EmptyState({ message = 'No data available', icon = '📭', className = '' }) {
   return (
     <div className={`flex flex-col items-center justify-center py-12 ${className}`}>

@@ -1,9 +1,5 @@
 'use client';
 
-/**
- * ConfirmDialog Component
- * Confirmation dialog for destructive actions
- */
 export default function ConfirmDialog({ 
   isOpen, 
   onClose, 
@@ -13,7 +9,7 @@ export default function ConfirmDialog({
   confirmText = 'Confirm',
   cancelText = 'Cancel',
   loading = false,
-  variant = 'danger' // 'danger' or 'warning'
+  variant = 'danger'
 }) {
   if (!isOpen) return null;
 
@@ -24,14 +20,12 @@ export default function ConfirmDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fadeIn"
         onClick={loading ? undefined : onClose}
         aria-hidden="true"
       />
 
-      {/* Dialog Content */}
       <div 
         className="relative bg-card border border-card-border rounded-xl shadow-2xl max-w-md w-full animate-slideUp"
         role="alertdialog"
@@ -40,24 +34,19 @@ export default function ConfirmDialog({
         aria-describedby="dialog-message"
       >
         <div className="p-6">
-          {/* Icon */}
           <div className={`w-12 h-12 rounded-full ${variant === 'danger' ? 'bg-red-500/20' : 'bg-yellow-500/20'} flex items-center justify-center mb-4`}>
             <span className="text-2xl">
               {variant === 'danger' ? '⚠️' : '❗'}
             </span>
           </div>
 
-          {/* Title */}
           <h3 id="dialog-title" className="text-lg font-bold text-white mb-2">
             {title}
           </h3>
-
-          {/* Message */}
           <p id="dialog-message" className="text-muted text-sm mb-6">
             {message}
           </p>
 
-          {/* Actions */}
           <div className="flex gap-3">
             <button
               onClick={onClose}

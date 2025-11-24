@@ -2,11 +2,6 @@
 
 import { useState } from 'react';
 
-/**
- * ProjectForm Component
- * Reusable form for creating and editing projects
- * Follows DRY principle
- */
 export default function ProjectForm({ 
   initialData = null, 
   onSubmit, 
@@ -31,7 +26,6 @@ export default function ProjectForm({
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear error for this field
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: null }));
     }
@@ -82,7 +76,6 @@ export default function ProjectForm({
       return;
     }
 
-    // Convert tags string to array
     const tags = formData.tags
       .split(',')
       .map(tag => tag.trim())
@@ -101,7 +94,6 @@ export default function ProjectForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Project Name */}
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-white mb-1">
           Project Name <span className="text-red-400">*</span>
@@ -119,7 +111,6 @@ export default function ProjectForm({
         {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name}</p>}
       </div>
 
-      {/* Status */}
       <div>
         <label htmlFor="status" className="block text-sm font-medium text-white mb-1">
           Status
@@ -139,7 +130,6 @@ export default function ProjectForm({
         </select>
       </div>
 
-      {/* Owner */}
       <div>
         <label htmlFor="owner" className="block text-sm font-medium text-white mb-1">
           Project Owner <span className="text-red-400">*</span>
@@ -157,7 +147,6 @@ export default function ProjectForm({
         {errors.owner && <p className="text-red-400 text-xs mt-1">{errors.owner}</p>}
       </div>
 
-      {/* Due Date */}
       <div>
         <label htmlFor="due" className="block text-sm font-medium text-white mb-1">
           Due Date <span className="text-red-400">*</span>
@@ -175,7 +164,6 @@ export default function ProjectForm({
         {errors.due && <p className="text-red-400 text-xs mt-1">{errors.due}</p>}
       </div>
 
-      {/* Tasks Grid */}
       <div className="grid grid-cols-3 gap-4">
         <div>
           <label htmlFor="total" className="block text-sm font-medium text-white mb-1">
@@ -230,7 +218,6 @@ export default function ProjectForm({
         </div>
       </div>
 
-      {/* Description */}
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-white mb-1">
           Description
@@ -247,7 +234,6 @@ export default function ProjectForm({
         />
       </div>
 
-      {/* Tags */}
       <div>
         <label htmlFor="tags" className="block text-sm font-medium text-white mb-1">
           Tags
@@ -265,8 +251,7 @@ export default function ProjectForm({
         <p className="text-muted text-xs mt-1">Separate tags with commas</p>
       </div>
 
-      {/* Form Actions */}
-      <div className="flex gap-3 pt-4">
+     <div className="flex gap-3 pt-4">
         <button
           type="button"
           onClick={onCancel}

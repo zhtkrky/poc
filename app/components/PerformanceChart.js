@@ -46,15 +46,12 @@ const PerformanceChart = () => {
         {data.map((item, index) => (
             <div key={index} className="flex flex-col items-center gap-2 flex-1 h-full justify-end group cursor-pointer">
                 <div className="relative w-full flex items-end justify-center h-full">
-                    {/* Background bar */}
                     <div className="absolute bottom-0 w-full h-full bg-card-border/20 rounded-t-lg"></div>
-                    {/* Active bar */}
                     <div 
                         className={`w-full mx-1 rounded-t-lg transition-all duration-300 relative group-hover:opacity-80 ${item.active ? 'bg-white' : 'bg-card-border'}`}
                         style={{ height: `${item.value}%` }}
                     >
                     </div>
-                    {/* Label inside bar */}
                      <span className={`absolute bottom-2 text-[10px] font-bold z-10 ${item.active ? 'text-black' : 'text-white'}`}>
                         {item.label}
                     </span>
