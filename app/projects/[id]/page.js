@@ -9,17 +9,20 @@ import { CardSkeleton } from '../../components/LoadingSpinner';
 import Modal from '../../components/Modal';
 import { NotificationContainer } from '../../components/Notification';
 import ProjectForm from '../../components/ProjectForm';
-import { useDeleteProject, useUpdateProject } from '../../lib/hooks/useProjectMutations';
-import { useProject } from '../../lib/hooks/useProjects';
+import {
+  useDeleteProjectMutation,
+  useGetProjectQuery,
+  useUpdateProjectMutation
+} from '../../lib/api/projectsApi';
 
 export default function ProjectDetailPage() {
   const params = useParams();
   const router = useRouter();
   const projectId = params.id;
 
-  const { data: project, loading, error, refetch } = useProject(projectId);
-  const updateProject = useUpdateProject();
-  const deleteProject = useDeleteProject();
+  const { data: project, isLoading: loading, error, refetch } = useGetProjectQuery(projectId);
+  const [updateProject, { isLoading: isUpdating }] = useUpdateProjectMutation();
+  const [deleteProject, { isLoading: isDeleting }] = useDeleteProjectMutation();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -39,7 +42,7 @@ export default function ProjectDetailPage() {
   // Handle edit project
   const handleEditProject = async (data) => {
     try {
-      await updateProject.mutate({ id: projectId, data });
+      await updateProject({ id: projectId, ...data }).unwrap();
       setIsEditModalOpen(false);
       addNotification('Project updated successfully!', 'success');
       refetch();
@@ -51,7 +54,7 @@ export default function ProjectDetailPage() {
   // Handle delete project
   const handleDeleteProject = async () => {
     try {
-      await deleteProject.mutate(projectId);
+      await deleteProject(projectId).unwrap();
       addNotification('Project deleted successfully!', 'success');
       setTimeout(() => {
         router.push('/projects');
@@ -232,7 +235,7 @@ export default function ProjectDetailPage() {
           initialData={project}
           onSubmit={handleEditProject}
           onCancel={() => setIsEditModalOpen(false)}
-          loading={updateProject.loading}
+          loading={isUpdating}
         />
       </Modal>
 
@@ -245,7 +248,7 @@ export default function ProjectDetailPage() {
         message={`Are you sure you want to delete "${project.name}"? This action cannot be undone.`}
         confirmText="Delete"
         cancelText="Cancel"
-        loading={deleteProject.loading}
+        loading={isDeleting}
         variant="danger"
       />
 

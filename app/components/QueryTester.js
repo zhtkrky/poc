@@ -1,16 +1,15 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useStats } from '../lib/hooks/useStats';
-import { useTasks } from '../lib/hooks/useTasks';
+import { useGetStatsQuery } from '../lib/api/statsApi';
+import { useGetTasksQuery } from '../lib/api/tasksApi';
 
 /**
  * Test Component for useQuery Hook
  * Add this to your page to verify the hook is working
  */
 export default function QueryTester() {
-  const { data: stats, loading: statsLoading, error: statsError, refetch, isStale } = useStats();
-  const { data: tasks, loading: tasksLoading } = useTasks();
+  const { data: stats, isLoading: statsLoading, error: statsError, refetch } = useGetStatsQuery();
+  const { data: tasks, isLoading: tasksLoading } = useGetTasksQuery();
 
   // Log state changes
   useEffect(() => {
@@ -18,10 +17,10 @@ export default function QueryTester() {
       data: stats,
       loading: statsLoading,
       error: statsError,
-      isStale,
+      error: statsError,
       timestamp: new Date().toISOString()
     });
-  }, [stats, statsLoading, statsError, isStale]);
+  }, [stats, statsLoading, statsError]);
 
   useEffect(() => {
     console.log('📋 Tasks Query State:', {
@@ -52,7 +51,7 @@ export default function QueryTester() {
           </div>
           <div className="text-muted space-y-1">
             <div>Items: {stats?.length || 0}</div>
-            <div>Stale: {isStale ? 'Yes' : 'No'}</div>
+            <div>Items: {stats?.length || 0}</div>
             {statsError && <div className="text-red-400">Error: {statsError}</div>}
           </div>
           <button

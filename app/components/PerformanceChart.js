@@ -1,11 +1,11 @@
 'use client';
 
-import { usePerformance } from '../lib/hooks/usePerformance';
+import { useGetPerformanceQuery } from '../lib/api/statsApi';
 import { ErrorMessage } from './ErrorMessage';
 import { Skeleton } from './LoadingSpinner';
 
 const PerformanceChart = () => {
-  const { data: performanceData, loading, error, refetch } = usePerformance();
+  const { data: performanceData, isLoading: loading, error, refetch } = useGetPerformanceQuery();
 
   if (error) {
     return (

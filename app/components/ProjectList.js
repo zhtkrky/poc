@@ -1,10 +1,11 @@
 'use client';
 
-import { useProjects } from '../lib/hooks/useProjects';
+import { useGetProjectsQuery } from '../lib/api/projectsApi';
+import { EmptyState, ErrorMessage } from './ErrorMessage';
 import { TableSkeleton } from './LoadingSpinner';
 
 const ProjectList = () => {
-  const { data: projects, loading, error, refetch } = useProjects();
+  const { data: projects, isLoading: loading, error, refetch } = useGetProjectsQuery();
 
   return (
     <div className="bg-card p-6 rounded-xl border border-card-border mt-6">

@@ -8,14 +8,13 @@ import { TableSkeleton } from '../components/LoadingSpinner';
 import Modal from '../components/Modal';
 import { NotificationContainer } from '../components/Notification';
 import ProjectForm from '../components/ProjectForm';
-import { useCreateProject, useDeleteProject, useUpdateProject } from '../lib/hooks/useProjectMutations';
-import { useProjects } from '../lib/hooks/useProjects';
+import { useCreateProjectMutation, useDeleteProjectMutation, useGetProjectsQuery, useUpdateProjectMutation } from '../lib/api/projectsApi';
 
 export default function ProjectsPage() {
-  const { data: projects, loading, error, refetch } = useProjects();
-  const createProject = useCreateProject();
-  const updateProject = useUpdateProject();
-  const deleteProject = useDeleteProject();
+  const { data: projects, isLoading: loading, error, refetch } = useGetProjectsQuery();
+  const [createProject, { isLoading: isCreating }] = useCreateProjectMutation();
+  const [updateProject, { isLoading: isUpdating }] = useUpdateProjectMutation();
+  const [deleteProject, { isLoading: isDeleting }] = useDeleteProjectMutation();
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -38,7 +37,7 @@ export default function ProjectsPage() {
   // Handle create project
   const handleCreateProject = async (data) => {
     try {
-      await createProject.mutate(data);
+      await createProject(data).unwrap();
       setIsCreateModalOpen(false);
       addNotification('Project created successfully!', 'success');
       refetch();
@@ -50,7 +49,7 @@ export default function ProjectsPage() {
   // Handle edit project
   const handleEditProject = async (data) => {
     try {
-      await updateProject.mutate({ id: selectedProject.id, data });
+      await updateProject({ id: selectedProject.id, ...data }).unwrap();
       setIsEditModalOpen(false);
       setSelectedProject(null);
       addNotification('Project updated successfully!', 'success');
@@ -63,7 +62,7 @@ export default function ProjectsPage() {
   // Handle delete project
   const handleDeleteProject = async () => {
     try {
-      await deleteProject.mutate(selectedProject.id);
+      await deleteProject(selectedProject.id).unwrap();
       setIsDeleteDialogOpen(false);
       setSelectedProject(null);
       addNotification('Project deleted successfully!', 'success');
@@ -233,7 +232,7 @@ export default function ProjectsPage() {
         <ProjectForm
           onSubmit={handleCreateProject}
           onCancel={() => setIsCreateModalOpen(false)}
-          loading={createProject.loading}
+          loading={isCreating}
         />
       </Modal>
 
@@ -254,7 +253,7 @@ export default function ProjectsPage() {
             setIsEditModalOpen(false);
             setSelectedProject(null);
           }}
-          loading={updateProject.loading}
+          loading={isUpdating}
         />
       </Modal>
 
@@ -270,7 +269,7 @@ export default function ProjectsPage() {
         message={`Are you sure you want to delete "${selectedProject?.name}"? This action cannot be undone.`}
         confirmText="Delete"
         cancelText="Cancel"
-        loading={deleteProject.loading}
+        loading={isDeleting}
         variant="danger"
       />
 

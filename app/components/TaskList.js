@@ -1,11 +1,11 @@
 'use client';
 
-import { useTasks } from '../lib/hooks/useTasks';
+import { useGetTasksQuery } from '../lib/api/tasksApi';
 import { EmptyState, ErrorMessage } from './ErrorMessage';
 import { TableSkeleton } from './LoadingSpinner';
 
 const TaskList = () => {
-  const { data: tasks, loading, error, refetch } = useTasks();
+  const { data: tasks, isLoading: loading, error, refetch } = useGetTasksQuery();
 
   return (
     <div className="bg-card p-6 rounded-xl border border-card-border">

@@ -5,22 +5,18 @@ import Header from './components/Header';
 import { CardSkeleton } from './components/LoadingSpinner';
 import PerformanceChart from './components/PerformanceChart';
 import ProjectList from './components/ProjectList';
-import QueryTester from './components/QueryTester';
 import StatsCard from './components/StatsCard';
 import TaskList from './components/TaskList';
-import { useStats } from './lib/hooks/useStats';
-import { useSummary } from './lib/hooks/useSummary';
+import { useGetStatsQuery, useGetSummaryQuery } from './lib/api/statsApi';
 
 
 
 
 export default function Home() {
-  const { data: stats, loading: statsLoading, error: statsError, refetch: refetchStats } = useStats();
-  const { data: summary, loading: summaryLoading, error: summaryError } = useSummary();
+  const { data: stats, isLoading: statsLoading, error: statsError, refetch: refetchStats } = useGetStatsQuery();
+  const { data: summary, isLoading: summaryLoading, error: summaryError } = useGetSummaryQuery();
   return (
     <div className="flex min-h-screen bg-background">
-      <QueryTester />
-      
       <div className="flex-1 ml-64">
         <Header />
         

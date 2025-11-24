@@ -13,7 +13,11 @@ export function ErrorMessage({ error, onRetry, className = '' }) {
         <div className="text-2xl">⚠️</div>
         <div className="flex-1">
           <h3 className="font-bold text-red-400 mb-1">Something went wrong</h3>
-          <p className="text-sm text-muted mb-4">{error}</p>
+          <p className="text-sm text-muted mb-4">
+            {typeof error === 'string' 
+              ? error 
+              : error?.data?.message || error?.error || error?.message || 'An unknown error occurred'}
+          </p>
           {onRetry && (
             <button
               onClick={onRetry}
