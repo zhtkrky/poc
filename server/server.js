@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const mockData = require('./data/mockData');
 const projectService = require('./services/projectService');
+const diagnosisService = require('./services/diagnosisService');
 
 const app = express();
 const PORT = 3002;
@@ -107,6 +108,85 @@ app.get('/api/summary', (req, res) => {
   }, 300);
 });
 
+// Car Diagnosis Routes
+// GET all diagnoses
+app.get('/api/diagnosis', (req, res) => {
+  setTimeout(() => {
+    try {
+      const diagnoses = diagnosisService.getAllDiagnoses();
+      res.json({ success: true, data: diagnoses });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }, 300);
+});
+
+// GET diagnosis by ID
+app.get('/api/diagnosis/:id', (req, res) => {
+  setTimeout(() => {
+    try {
+      const diagnosis = diagnosisService.getDiagnosisById(req.params.id);
+      if (!diagnosis) {
+        return res.status(404).json({ success: false, error: 'Diagnosis not found' });
+      }
+      res.json({ success: true, data: diagnosis });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }, 300);
+});
+
+// POST create new diagnosis
+app.post('/api/diagnosis', (req, res) => {
+  setTimeout(() => {
+    try {
+      const newDiagnosis = diagnosisService.createDiagnosis(req.body);
+      res.status(201).json({ success: true, data: newDiagnosis });
+    } catch (error) {
+      res.status(400).json({ success: false, error: error.message });
+    }
+  }, 300);
+});
+
+// PUT update diagnosis vehicle info
+app.put('/api/diagnosis/:id', (req, res) => {
+  setTimeout(() => {
+    try {
+      const updatedDiagnosis = diagnosisService.updateDiagnosis(req.params.id, req.body);
+      res.json({ success: true, data: updatedDiagnosis });
+    } catch (error) {
+      const statusCode = error.message === 'Diagnosis not found' ? 404 : 400;
+      res.status(statusCode).json({ success: false, error: error.message });
+    }
+  }, 300);
+});
+
+// PUT update part status
+app.put('/api/diagnosis/:id/parts/:partId', (req, res) => {
+  setTimeout(() => {
+    try {
+      const updatedPart = diagnosisService.updatePart(req.params.id, req.params.partId, req.body);
+      res.json({ success: true, data: updatedPart });
+    } catch (error) {
+      const statusCode = error.message.includes('not found') ? 404 : 400;
+      res.status(statusCode).json({ success: false, error: error.message });
+    }
+  }, 300);
+});
+
+// DELETE diagnosis
+app.delete('/api/diagnosis/:id', (req, res) => {
+  setTimeout(() => {
+    try {
+      diagnosisService.deleteDiagnosis(req.params.id);
+      res.json({ success: true, message: 'Diagnosis deleted successfully' });
+    } catch (error) {
+      const statusCode = error.message === 'Diagnosis not found' ? 404 : 500;
+      res.status(statusCode).json({ success: false, error: error.message });
+    }
+  }, 300);
+});
+
 app.get('/api/dashboard', (req, res) => {
   setTimeout(() => {
     res.json({ 
@@ -152,4 +232,10 @@ app.listen(PORT, () => {
   console.log(`   - GET /api/performance`);
   console.log(`   - GET /api/summary`);
   console.log(`   - GET /api/dashboard (all data)`);
+  console.log(`   - GET /api/diagnosis (all diagnoses)`);
+  console.log(`   - GET /api/diagnosis/:id`);
+  console.log(`   - POST /api/diagnosis`);
+  console.log(`   - PUT /api/diagnosis/:id`);
+  console.log(`   - PUT /api/diagnosis/:id/parts/:partId`);
+  console.log(`   - DELETE /api/diagnosis/:id`);
 });

@@ -5,6 +5,6 @@ const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({ baseUrl }),
-  tagTypes: ['Projects', 'Tasks', 'Stats', 'Performance', 'Summary', 'Dashboard'],
+  tagTypes: ['Projects', 'Tasks', 'Stats', 'Performance', 'Summary', 'Dashboard', 'Diagnosis'],
   endpoints: () => ({}),
 });

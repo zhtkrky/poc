@@ -83,7 +83,82 @@ const mockData = {
     tasksDueToday: 4,
     overdueTasks: 2,
     upcomingDeadlines: 8
-  }
+  },
+
+  carDiagnoses: [
+    {
+      id: 1,
+      vehicleInfo: {
+        make: 'Toyota',
+        model: 'Camry',
+        year: 2020,
+        vin: '1HGBH41JXMN109186',
+        licensePlate: 'ABC-1234'
+      },
+      createdAt: '2024-03-15T10:00:00.000Z',
+      updatedAt: '2024-03-20T14:30:00.000Z',
+      parts: [
+        { id: 'hood', name: 'Hood (D)', status: 'original', comment: '', updatedAt: null },
+        { id: 'front_bumper', name: 'Front Bumper', status: 'painted', comment: 'Minor scratch repaired and repainted', updatedAt: '2024-03-18T10:00:00.000Z' },
+        { id: 'left_door', name: 'Left Front Door (D)', status: 'original', comment: '', updatedAt: null },
+        { id: 'right_door', name: 'Right Front Door (D)', status: 'damaged', comment: 'Dent on lower panel, needs repair', updatedAt: '2024-03-20T14:30:00.000Z' },
+        { id: 'left_rear_door', name: 'Left Rear Door (B)', status: 'original', comment: '', updatedAt: null },
+        { id: 'right_rear_door', name: 'Right Rear Door (B)', status: 'replaced', comment: 'Replaced after accident, OEM part', updatedAt: '2024-03-19T11:00:00.000Z' },
+        { id: 'trunk', name: 'Trunk (L)', status: 'original', comment: '', updatedAt: null },
+        { id: 'rear_bumper', name: 'Rear Bumper (L)', status: 'original', comment: '', updatedAt: null },
+        { id: 'left_fender', name: 'Left Fender (P)', status: 'not_checked', comment: '', updatedAt: null },
+        { id: 'right_fender', name: 'Right Fender (P)', status: 'not_checked', comment: '', updatedAt: null },
+      ]
+    },
+    {
+      id: 2,
+      vehicleInfo: {
+        make: 'Honda',
+        model: 'Civic',
+        year: 2021,
+        vin: '2HGFC2F59MH123456',
+        licensePlate: 'XYZ-5678'
+      },
+      createdAt: '2024-03-10T09:00:00.000Z',
+      updatedAt: '2024-03-22T16:45:00.000Z',
+      parts: [
+        { id: 'hood', name: 'Hood (D)', status: 'original', comment: '', updatedAt: null },
+        { id: 'front_bumper', name: 'Front Bumper', status: 'replaced', comment: 'Replaced after front collision', updatedAt: '2024-03-22T16:45:00.000Z' },
+        { id: 'left_door', name: 'Left Front Door (D)', status: 'original', comment: '', updatedAt: null },
+        { id: 'right_door', name: 'Right Front Door (D)', status: 'original', comment: '', updatedAt: null },
+        { id: 'left_rear_door', name: 'Left Rear Door (B)', status: 'original', comment: '', updatedAt: null },
+        { id: 'right_rear_door', name: 'Right Rear Door (B)', status: 'original', comment: '', updatedAt: null },
+        { id: 'trunk', name: 'Trunk (L)', status: 'original', comment: '', updatedAt: null },
+        { id: 'rear_bumper', name: 'Rear Bumper (L)', status: 'original', comment: '', updatedAt: null },
+        { id: 'left_fender', name: 'Left Fender (P)', status: 'not_checked', comment: '', updatedAt: null },
+        { id: 'right_fender', name: 'Right Fender (P)', status: 'not_checked', comment: '', updatedAt: null },
+      ]
+    },
+    {
+      id: 3,
+      vehicleInfo: {
+        make: 'Ford',
+        model: 'F-150',
+        year: 2019,
+        vin: '1FTFW1E54KFA12345',
+        licensePlate: 'DEF-9012'
+      },
+      createdAt: '2024-03-01T14:00:00.000Z',
+      updatedAt: '2024-03-01T14:00:00.000Z',
+      parts: [
+        { id: 'hood', name: 'Hood (D)', status: 'not_checked', comment: '', updatedAt: null },
+        { id: 'front_bumper', name: 'Front Bumper', status: 'not_checked', comment: '', updatedAt: null },
+        { id: 'left_door', name: 'Left Front Door (D)', status: 'not_checked', comment: '', updatedAt: null },
+        { id: 'right_door', name: 'Right Front Door (D)', status: 'not_checked', comment: '', updatedAt: null },
+        { id: 'left_rear_door', name: 'Left Rear Door (B)', status: 'not_checked', comment: '', updatedAt: null },
+        { id: 'right_rear_door', name: 'Right Rear Door (B)', status: 'not_checked', comment: '', updatedAt: null },
+        { id: 'trunk', name: 'Trunk (L)', status: 'not_checked', comment: '', updatedAt: null },
+        { id: 'rear_bumper', name: 'Rear Bumper (L)', status: 'not_checked', comment: '', updatedAt: null },
+        { id: 'left_fender', name: 'Left Fender (P)', status: 'not_checked', comment: '', updatedAt: null },
+        { id: 'right_fender', name: 'Right Fender (P)', status: 'not_checked', comment: '', updatedAt: null },
+      ]
+    }
+  ]
 };
 
 module.exports = mockData;

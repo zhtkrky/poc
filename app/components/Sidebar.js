@@ -12,6 +12,7 @@ const Sidebar = () => {
     { name: 'Templates', icon: '📋', href: '#' },
     { name: 'Notification', icon: '🔔', href: '#' },
     { name: 'Dashboard', icon: '⏱️', href: '/', active: pathname === '/' },
+    { name: 'Car Diagnosis', icon: '🚗', href: '/car-diagnosis', active: pathname === '/car-diagnosis' },
     { name: 'Projects', icon: '📁', href: '/projects', active: pathname?.startsWith('/projects') },
     { name: 'Inbox', icon: '📥', href: '#' },
     { name: 'Calendar', icon: '📅', href: '#' },
