@@ -1,155 +1,197 @@
-const mockData = require('../data/mockData');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 class DiagnosisService {
   /**
    * Get all diagnoses
-   * @returns {Array} List of all diagnoses
+   * @returns {Promise<Array>} List of all diagnoses
    */
-  getAllDiagnoses() {
-    return mockData.carDiagnoses;
+  async getAllDiagnoses() {
+    const diagnoses = await prisma.carDiagnosis.findMany({
+      include: { parts: true }
+    });
+    
+    return diagnoses.map(d => ({
+      ...d,
+      vehicleInfo: JSON.parse(d.vehicleInfo)
+    }));
   }
 
   /**
    * Get a single diagnosis by ID
    * @param {number|string} id - Diagnosis ID
-   * @returns {Object|null} Diagnosis object or null if not found
+   * @returns {Promise<Object|null>} Diagnosis object or null if not found
    */
-  getDiagnosisById(id) {
-    const diagnosisId = parseInt(id);
-    return mockData.carDiagnoses.find(diagnosis => diagnosis.id === diagnosisId) || null;
+  async getDiagnosisById(id) {
+    const diagnosis = await prisma.carDiagnosis.findUnique({
+      where: { id: parseInt(id) },
+      include: { parts: true }
+    });
+    
+    if (!diagnosis) return null;
+    
+    return {
+      ...diagnosis,
+      vehicleInfo: JSON.parse(diagnosis.vehicleInfo)
+    };
   }
 
   /**
    * Create a new diagnosis
    * @param {Object} vehicleInfo - Vehicle information
-   * @returns {Object} Created diagnosis
+   * @returns {Promise<Object>} Created diagnosis
    * @throws {Error} If validation fails
    */
-  createDiagnosis(vehicleInfo) {
+  async createDiagnosis(vehicleInfo) {
     // Validate vehicle info
     this.validateVehicleInfo(vehicleInfo);
 
-    // Generate new ID
-    const newId = mockData.carDiagnoses.length > 0 
-      ? Math.max(...mockData.carDiagnoses.map(d => d.id)) + 1 
-      : 1;
+    const defaultParts = [
+      { partId: 'hood', name: 'Hood (D)', status: 'not_checked', comment: '' },
+      { partId: 'front_bumper', name: 'Front Bumper', status: 'not_checked', comment: '' },
+      { partId: 'left_door', name: 'Left Front Door (D)', status: 'not_checked', comment: '' },
+      { partId: 'right_door', name: 'Right Front Door (D)', status: 'not_checked', comment: '' },
+      { partId: 'left_rear_door', name: 'Left Rear Door (B)', status: 'not_checked', comment: '' },
+      { partId: 'right_rear_door', name: 'Right Rear Door (B)', status: 'not_checked', comment: '' },
+      { partId: 'trunk', name: 'Trunk (L)', status: 'not_checked', comment: '' },
+      { partId: 'rear_bumper', name: 'Rear Bumper (L)', status: 'not_checked', comment: '' },
+      { partId: 'left_fender', name: 'Left Fender (P)', status: 'not_checked', comment: '' },
+      { partId: 'right_fender', name: 'Right Fender (P)', status: 'not_checked', comment: '' },
+    ];
 
-    // Create new diagnosis with default parts
-    const newDiagnosis = {
-      id: newId,
-      vehicleInfo: {
-        make: vehicleInfo.make,
-        model: vehicleInfo.model,
-        year: vehicleInfo.year,
-        vin: vehicleInfo.vin,
-        licensePlate: vehicleInfo.licensePlate
+    const newDiagnosis = await prisma.carDiagnosis.create({
+      data: {
+        vehicleInfo: JSON.stringify({
+          make: vehicleInfo.make,
+          model: vehicleInfo.model,
+          year: vehicleInfo.year,
+          vin: vehicleInfo.vin,
+          licensePlate: vehicleInfo.licensePlate
+        }),
+        parts: {
+          create: defaultParts
+        }
       },
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      parts: [
-        { id: 'hood', name: 'Hood (D)', status: 'not_checked', comment: '', updatedAt: null },
-        { id: 'front_bumper', name: 'Front Bumper', status: 'not_checked', comment: '', updatedAt: null },
-        { id: 'left_door', name: 'Left Front Door (D)', status: 'not_checked', comment: '', updatedAt: null },
-        { id: 'right_door', name: 'Right Front Door (D)', status: 'not_checked', comment: '', updatedAt: null },
-        { id: 'left_rear_door', name: 'Left Rear Door (B)', status: 'not_checked', comment: '', updatedAt: null },
-        { id: 'right_rear_door', name: 'Right Rear Door (B)', status: 'not_checked', comment: '', updatedAt: null },
-        { id: 'trunk', name: 'Trunk (L)', status: 'not_checked', comment: '', updatedAt: null },
-        { id: 'rear_bumper', name: 'Rear Bumper (L)', status: 'not_checked', comment: '', updatedAt: null },
-        { id: 'left_fender', name: 'Left Fender (P)', status: 'not_checked', comment: '', updatedAt: null },
-        { id: 'right_fender', name: 'Right Fender (P)', status: 'not_checked', comment: '', updatedAt: null },
-      ]
+      include: { parts: true }
+    });
+
+    return {
+      ...newDiagnosis,
+      vehicleInfo: JSON.parse(newDiagnosis.vehicleInfo)
     };
-
-    // Add to mock data
-    mockData.carDiagnoses.push(newDiagnosis);
-
-    return newDiagnosis;
   }
 
   /**
    * Update diagnosis vehicle information
    * @param {number|string} id - Diagnosis ID
    * @param {Object} vehicleInfo - Updated vehicle information
-   * @returns {Object} Updated diagnosis
+   * @returns {Promise<Object>} Updated diagnosis
    * @throws {Error} If diagnosis not found or validation fails
    */
-  updateDiagnosis(id, vehicleInfo) {
+  async updateDiagnosis(id, vehicleInfo) {
     const diagnosisId = parseInt(id);
-    const diagnosisIndex = mockData.carDiagnoses.findIndex(d => d.id === diagnosisId);
-
-    if (diagnosisIndex === -1) {
-      throw new Error('Diagnosis not found');
-    }
 
     // Validate vehicle info (partial update allowed)
     this.validateVehicleInfo(vehicleInfo, false);
 
-    // Update diagnosis
-    const updatedDiagnosis = {
-      ...mockData.carDiagnoses[diagnosisIndex],
-      vehicleInfo: {
-        ...mockData.carDiagnoses[diagnosisIndex].vehicleInfo,
+    try {
+      // First get existing vehicle info to merge
+      const existingDiagnosis = await prisma.carDiagnosis.findUnique({
+        where: { id: diagnosisId }
+      });
+
+      if (!existingDiagnosis) {
+        throw new Error('Diagnosis not found');
+      }
+
+      const currentVehicleInfo = JSON.parse(existingDiagnosis.vehicleInfo);
+      const updatedVehicleInfo = {
+        ...currentVehicleInfo,
         ...vehicleInfo
-      },
-      updatedAt: new Date().toISOString(),
-    };
+      };
 
-    mockData.carDiagnoses[diagnosisIndex] = updatedDiagnosis;
+      const updatedDiagnosis = await prisma.carDiagnosis.update({
+        where: { id: diagnosisId },
+        data: {
+          vehicleInfo: JSON.stringify(updatedVehicleInfo)
+        },
+        include: { parts: true }
+      });
 
-    return updatedDiagnosis;
+      return {
+        ...updatedDiagnosis,
+        vehicleInfo: JSON.parse(updatedDiagnosis.vehicleInfo)
+      };
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new Error('Diagnosis not found');
+      }
+      throw error;
+    }
   }
 
   /**
    * Update a specific part in a diagnosis
    * @param {number|string} diagnosisId - Diagnosis ID
-   * @param {string} partId - Part ID
+   * @param {string} partId - Part ID (string ID like 'hood')
    * @param {Object} partData - Updated part data
-   * @returns {Object} Updated part
+   * @returns {Promise<Object>} Updated part
    * @throws {Error} If diagnosis or part not found
    */
-  updatePart(diagnosisId, partId, partData) {
+  async updatePart(diagnosisId, partId, partData) {
     const diagId = parseInt(diagnosisId);
-    const diagnosis = mockData.carDiagnoses.find(d => d.id === diagId);
 
-    if (!diagnosis) {
-      throw new Error('Diagnosis not found');
-    }
+    // Find the part first
+    // We need to find part by diagnosisId AND partId (string)
+    // Since partId is not unique globally, we can't use findUnique on partId alone unless we have a composite key or use findFirst
+    // But we can use findFirst
+    
+    const part = await prisma.carPart.findFirst({
+      where: {
+        diagnosisId: diagId,
+        partId: partId
+      }
+    });
 
-    const partIndex = diagnosis.parts.findIndex(p => p.id === partId);
-
-    if (partIndex === -1) {
+    if (!part) {
       throw new Error('Part not found');
     }
 
-    // Update part
-    diagnosis.parts[partIndex] = {
-      ...diagnosis.parts[partIndex],
-      ...partData,
-      updatedAt: new Date().toISOString(),
-    };
+    const updatedPart = await prisma.carPart.update({
+      where: { id: part.id }, // Use the internal unique ID
+      data: {
+        ...partData,
+        updatedAt: new Date()
+      }
+    });
 
     // Update diagnosis timestamp
-    diagnosis.updatedAt = new Date().toISOString();
+    await prisma.carDiagnosis.update({
+      where: { id: diagId },
+      data: { updatedAt: new Date() }
+    });
 
-    return diagnosis.parts[partIndex];
+    return updatedPart;
   }
 
   /**
    * Delete a diagnosis
    * @param {number|string} id - Diagnosis ID
-   * @returns {boolean} True if deleted successfully
+   * @returns {Promise<boolean>} True if deleted successfully
    * @throws {Error} If diagnosis not found
    */
-  deleteDiagnosis(id) {
-    const diagnosisId = parseInt(id);
-    const diagnosisIndex = mockData.carDiagnoses.findIndex(d => d.id === diagnosisId);
-
-    if (diagnosisIndex === -1) {
-      throw new Error('Diagnosis not found');
+  async deleteDiagnosis(id) {
+    try {
+      await prisma.carDiagnosis.delete({
+        where: { id: parseInt(id) }
+      });
+      return true;
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new Error('Diagnosis not found');
+      }
+      throw error;
     }
-
-    mockData.carDiagnoses.splice(diagnosisIndex, 1);
-    return true;
   }
 
   /**

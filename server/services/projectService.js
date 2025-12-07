@@ -1,115 +1,142 @@
-const mockData = require('../data/mockData');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 class ProjectService {
   /**
    * Get all projects
-   * @returns {Array} List of all projects
+   * @param {string} [query] - Search query
+   * @returns {Promise<Array>} List of all projects
    */
-  getAllProjects() {
-    return mockData.projects;
+  async getAllProjects(query) {
+    const where = {};
+    if (query) {
+      where.OR = [
+        { name: { contains: query } },
+        { description: { contains: query } },
+        { owner: { contains: query } }
+      ];
+    }
+
+    const projects = await prisma.project.findMany({ where });
+    return projects.map(p => ({
+      ...p,
+      tags: JSON.parse(p.tags)
+    }));
   }
 
   /**
    * Get a single project by ID
    * @param {number|string} id - Project ID
-   * @returns {Object|null} Project object or null if not found
+   * @returns {Promise<Object|null>} Project object or null if not found
    */
-  getProjectById(id) {
-    const projectId = parseInt(id);
-    return mockData.projects.find(project => project.id === projectId) || null;
+  async getProjectById(id) {
+    const project = await prisma.project.findUnique({
+      where: { id: parseInt(id) }
+    });
+    
+    if (!project) return null;
+    
+    return {
+      ...project,
+      tags: JSON.parse(project.tags)
+    };
   }
 
   /**
    * Create a new project
    * @param {Object} projectData - Project data
-   * @returns {Object} Created project
+   * @returns {Promise<Object>} Created project
    * @throws {Error} If validation fails
    */
-  createProject(projectData) {
+  async createProject(projectData) {
     // Validate project data
     this.validateProjectData(projectData);
 
-    // Generate new ID
-    const newId = mockData.projects.length > 0 
-      ? Math.max(...mockData.projects.map(p => p.id)) + 1 
-      : 1;
+    const newProject = await prisma.project.create({
+      data: {
+        name: projectData.name,
+        status: projectData.status || 'In Progress',
+        statusColor: this.getStatusColor(projectData.status || 'In Progress'),
+        progress: parseInt(projectData.progress || 0),
+        total: parseInt(projectData.total || 0),
+        done: parseInt(projectData.done || 0),
+        due: projectData.due,
+        owner: projectData.owner,
+        ownerImg: projectData.ownerImg || `https://i.pravatar.cc/150?u=${Date.now()}`,
+        description: projectData.description || '',
+        tags: JSON.stringify(projectData.tags || []),
+      }
+    });
 
-    // Create new project with defaults
-    const newProject = {
-      id: newId,
-      name: projectData.name,
-      status: projectData.status || 'In Progress',
-      statusColor: this.getStatusColor(projectData.status || 'In Progress'),
-      progress: projectData.progress || 0,
-      total: projectData.total || 0,
-      done: projectData.done || 0,
-      due: projectData.due,
-      owner: projectData.owner,
-      ownerImg: projectData.ownerImg || `https://i.pravatar.cc/150?u=${newId}`,
-      description: projectData.description || '',
-      tags: projectData.tags || [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+    return {
+      ...newProject,
+      tags: JSON.parse(newProject.tags)
     };
-
-    // Add to mock data
-    mockData.projects.push(newProject);
-
-    return newProject;
   }
 
   /**
    * Update an existing project
    * @param {number|string} id - Project ID
    * @param {Object} projectData - Updated project data
-   * @returns {Object} Updated project
+   * @returns {Promise<Object>} Updated project
    * @throws {Error} If project not found or validation fails
    */
-  updateProject(id, projectData) {
+  async updateProject(id, projectData) {
     const projectId = parseInt(id);
-    const projectIndex = mockData.projects.findIndex(p => p.id === projectId);
-
-    if (projectIndex === -1) {
-      throw new Error('Project not found');
-    }
 
     // Validate only provided fields
     this.validateProjectData(projectData, false);
 
-    // Update project
-    const updatedProject = {
-      ...mockData.projects[projectIndex],
-      ...projectData,
-      id: projectId, // Ensure ID doesn't change
-      updatedAt: new Date().toISOString(),
-    };
+    try {
+      const dataToUpdate = { ...projectData };
+      
+      if (dataToUpdate.tags) {
+        dataToUpdate.tags = JSON.stringify(dataToUpdate.tags);
+      }
+      
+      if (dataToUpdate.status) {
+        dataToUpdate.statusColor = this.getStatusColor(dataToUpdate.status);
+      }
+      
+      // Remove id from dataToUpdate if present to avoid updating it
+      delete dataToUpdate.id;
+      delete dataToUpdate.updatedAt; // Let Prisma handle updatedAt
 
-    // Update status color if status changed
-    if (projectData.status) {
-      updatedProject.statusColor = this.getStatusColor(projectData.status);
+      const updatedProject = await prisma.project.update({
+        where: { id: projectId },
+        data: dataToUpdate
+      });
+
+      return {
+        ...updatedProject,
+        tags: JSON.parse(updatedProject.tags)
+      };
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new Error('Project not found');
+      }
+      throw error;
     }
-
-    mockData.projects[projectIndex] = updatedProject;
-
-    return updatedProject;
   }
 
   /**
    * Delete a project
    * @param {number|string} id - Project ID
-   * @returns {boolean} True if deleted successfully
+   * @returns {Promise<boolean>} True if deleted successfully
    * @throws {Error} If project not found
    */
-  deleteProject(id) {
-    const projectId = parseInt(id);
-    const projectIndex = mockData.projects.findIndex(p => p.id === projectId);
-
-    if (projectIndex === -1) {
-      throw new Error('Project not found');
+  async deleteProject(id) {
+    try {
+      await prisma.project.delete({
+        where: { id: parseInt(id) }
+      });
+      return true;
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new Error('Project not found');
+      }
+      throw error;
     }
-
-    mockData.projects.splice(projectIndex, 1);
-    return true;
   }
 
   /**

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { TableSkeleton } from '../components/LoadingSpinner';
@@ -11,7 +11,19 @@ import ProjectForm from '../components/ProjectForm';
 import { useCreateProjectMutation, useDeleteProjectMutation, useGetProjectsQuery, useUpdateProjectMutation } from '../lib/api/projectsApi';
 
 export default function ProjectsPage() {
-  const { data: projects, isLoading: loading, error, refetch } = useGetProjectsQuery();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const { data: projects, isLoading: loading, error, refetch } = useGetProjectsQuery(debouncedSearch);
   const [createProject, { isLoading: isCreating }] = useCreateProjectMutation();
   const [updateProject, { isLoading: isUpdating }] = useUpdateProjectMutation();
   const [deleteProject, { isLoading: isDeleting }] = useDeleteProjectMutation();
@@ -20,7 +32,6 @@ export default function ProjectsPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const [notifications, setNotifications] = useState([]);
 
   // Add notification
@@ -72,11 +83,8 @@ export default function ProjectsPage() {
     }
   };
 
-  // Filter projects based on search
-  const filteredProjects = projects?.filter(project =>
-    project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    project.owner.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  // Use projects directly as they are filtered on the backend
+  const filteredProjects = projects || [];
 
   return (
     <>

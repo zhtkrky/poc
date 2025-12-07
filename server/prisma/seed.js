@@ -1,4 +1,5 @@
-// Mock data for dashboard
+const { PrismaClient } = require('@prisma/client');
+
 const mockData = {
   stats: [
     { id: 1, title: 'Total Projects', value: 15, change: '+5', icon: '📊' },
@@ -161,4 +162,102 @@ const mockData = {
   ]
 };
 
-module.exports = mockData;
+const prisma = new PrismaClient();
+
+async function main() {
+  console.log('Start seeding ...');
+
+  // Clear existing data
+  await prisma.carPart.deleteMany();
+  await prisma.carDiagnosis.deleteMany();
+  await prisma.project.deleteMany();
+  await prisma.task.deleteMany();
+  await prisma.stat.deleteMany();
+  await prisma.performance.deleteMany();
+  await prisma.summary.deleteMany();
+
+  // Seed Projects
+  for (const project of mockData.projects) {
+    // Remove id to let database handle it, or keep it if we want to preserve IDs
+    // Since we are migrating, preserving IDs is good for existing links
+    const { id, ...data } = project;
+    await prisma.project.create({
+      data: {
+        id, // Explicitly set ID
+        ...data,
+        tags: JSON.stringify(data.tags),
+      }
+    });
+  }
+
+  // Seed Tasks
+  for (const task of mockData.tasks) {
+    const { id, ...data } = task;
+    await prisma.task.create({
+      data: {
+        id,
+        ...data
+      }
+    });
+  }
+
+  // Seed Stats
+  for (const stat of mockData.stats) {
+    const { id, ...data } = stat;
+    await prisma.stat.create({
+      data: {
+        id,
+        ...data
+      }
+    });
+  }
+
+  // Seed Performance
+  const { data: perfData, ...perfRest } = mockData.performance;
+  await prisma.performance.create({
+    data: {
+      ...perfRest,
+      data: JSON.stringify(perfData)
+    }
+  });
+
+  // Seed Summary
+  await prisma.summary.create({
+    data: mockData.summary
+  });
+
+  // Seed Car Diagnoses
+  for (const diagnosis of mockData.carDiagnoses) {
+    const { id, parts, vehicleInfo, ...diagnosisData } = diagnosis;
+    await prisma.carDiagnosis.create({
+      data: {
+        id,
+        ...diagnosisData,
+        vehicleInfo: JSON.stringify(vehicleInfo),
+        parts: {
+          create: parts.map(part => {
+             // Remove id from part if it's not unique or map it to partId
+             // In mockData, part.id is like 'hood', which is a string.
+             // Our schema has id Int @default(autoincrement()) and partId String.
+             const { id: partId, ...partData } = part;
+             return {
+               partId: partId,
+               ...partData
+             };
+          })
+        }
+      }
+    });
+  }
+
+  console.log('Seeding finished.');
+}
+
+main()
+  .catch(e => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

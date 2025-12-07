@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id          Int      @id @default(autoincrement())
+  name        String
+  status      String
+  statusColor String
+  progress    Int
+  total       Int
+  done        Int
+  due         String
+  owner       String
+  ownerImg    String
+  description String
+  tags        String   // Stored as JSON string
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Task {
+  id           Int     @id @default(autoincrement())
+  name         String
+  project      String
+  projectColor String
+  due          String
+  completed    Boolean
+}
+
+model Stat {
+  id     Int    @id @default(autoincrement())
+  title  String
+  value  Int
+  change String
+  icon   String
+}
+
+model Performance {
+  id      Int    @id @default(autoincrement())
+  overall Int
+  change  String
+  period  String
+  data    String // Stored as JSON string
+}
+
+model Summary {
+  id                Int @id @default(autoincrement())
+  tasksDueToday     Int
+  overdueTasks      Int
+  upcomingDeadlines Int
+}
+
+model CarDiagnosis {
+  id          Int       @id @default(autoincrement())
+  vehicleInfo String    // Stored as JSON string
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  parts       CarPart[]
+}
+
+model CarPart {
+  id          Int          @id @default(autoincrement())
+  partId      String
+  name        String
+  status      String
+  comment     String
+  updatedAt   DateTime?
+  diagnosisId Int
+  diagnosis   CarDiagnosis @relation(fields: [diagnosisId], references: [id], onDelete: Cascade)
+}
